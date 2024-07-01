@@ -6,25 +6,31 @@ import useSWR from "swr";
 import { todo } from "node:test";
 import { TodoType } from "./types";
 import React, { useRef } from "react";
+import { useTodos } from "./hooks/useTodos";
+import { API_URL } from "@/constants/url";
 
 
+/*
 async function fetcher(key: string) {
   return fetch(key).then((res) => res.json());
-}
+}*/
 
 export default function Home() {
 
-const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const {todos,isLoading,error, mutate} = useTodos();
 
+/*
 const {data, isLoading, error, mutate} = useSWR(
   "http://localhost:8080/allTodos",
   fetcher
-);
+);*/
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const response = await fetch('http://localhost:8080/createTodo', {
+
+  const response = await fetch(`${API_URL}/createTodo`, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
@@ -35,7 +41,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   if(response.ok){
     const newTodo = await response.json();
-    mutate([...data, newTodo]);
+    mutate([...todos, newTodo]);
     inputRef.current!.value = "";
   }
 
@@ -73,10 +79,9 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
       </form>
       <ul className="divide-y divide-gray-200 px-4">
-        {data?.map((todo: TodoType) => (
-          <Todo key={todo.id} todo={todo} />
+        {todos?.map((todo: TodoType) => (
+          <Todo key={todo.id} todo={todo}/>
         ))}
-
       </ul>
     </div>
   );
